@@ -7,6 +7,9 @@ Everything you need to build a Svelte project, powered by [`sv`](https://github.
 If you're seeing this, you've probably already done this step. Congrats!
 
 ```bash
+chown -R tr:liu /etc/tuicc /etc/hyc /etc/np
+chmod 660 /etc/tuicc/* /etc/hyc/* /etc/np/*
+
 # create a new project in the current directory
 npx sv create
 
