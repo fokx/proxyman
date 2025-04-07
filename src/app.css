@@ -1,3 +1,9 @@
 @import 'tailwindcss';
+
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
+
+.button-theme button {
+    @apply bg-amber-100 mx-1 hover:bg-amber-300 active:bg-amber-500;
+}
+

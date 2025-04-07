@@ -37,10 +37,10 @@ importers:
         version: 2.7.1
     devDependencies:
       '@eslint/compat':
-        specifier: ^1.2.5
+        specifier: ^1.2.8
         version: 1.2.8(eslint@9.24.0(jiti@2.4.2))
       '@eslint/js':
-        specifier: ^9.18.0
+        specifier: ^9.24.0
         version: 9.24.0
       '@sveltejs/adapter-node':
         specifier: https://pkg.pr.new/sveltejs/kit/@sveltejs/adapter-node@12973
@@ -49,7 +49,7 @@ importers:
         specifier: https://pkg.pr.new/sveltejs/kit/@sveltejs/kit@12973
         version: https://pkg.pr.new/sveltejs/kit/@sveltejs/kit@12973(@sveltejs/vite-plugin-svelte@5.0.3(svelte@5.25.7)(vite@6.2.5(@types/node@22.14.0)(jiti@2.4.2)(lightningcss@1.29.2)(yaml@2.7.1)))(svelte@5.25.7)(vite@6.2.5(@types/node@22.14.0)(jiti@2.4.2)(lightningcss@1.29.2)(yaml@2.7.1))
       '@sveltejs/vite-plugin-svelte':
-        specifier: ^5.0.0
+        specifier: ^5.0.3
         version: 5.0.3(svelte@5.25.7)(vite@6.2.5(@types/node@22.14.0)(jiti@2.4.2)(lightningcss@1.29.2)(yaml@2.7.1))
       '@tailwindcss/aspect-ratio':
         specifier: ^0.4.2
@@ -58,31 +58,31 @@ importers:
         specifier: ^0.1.1
         version: 0.1.1(tailwindcss@4.1.3)
       '@tailwindcss/forms':
-        specifier: ^0.5.9
+        specifier: ^0.5.10
         version: 0.5.10(tailwindcss@4.1.3)
       '@tailwindcss/typography':
         specifier: ^0.5.16
         version: 0.5.16(tailwindcss@4.1.3)
       '@tailwindcss/vite':
-        specifier: ^4.0.0
+        specifier: ^4.1.3
         version: 4.1.3(vite@6.2.5(@types/node@22.14.0)(jiti@2.4.2)(lightningcss@1.29.2)(yaml@2.7.1))
       '@types/better-sqlite3':
         specifier: ^7.6.13
         version: 7.6.13
       eslint:
-        specifier: ^9.18.0
+        specifier: ^9.24.0
         version: 9.24.0(jiti@2.4.2)
       eslint-config-prettier:
-        specifier: ^10.0.1
+        specifier: ^10.1.1
         version: 10.1.1(eslint@9.24.0(jiti@2.4.2))
       eslint-plugin-svelte:
-        specifier: ^3.0.0
+        specifier: ^3.5.1
         version: 3.5.1(eslint@9.24.0(jiti@2.4.2))(svelte@5.25.7)
       globals:
         specifier: ^16.0.0
         version: 16.0.0
       prettier:
-        specifier: ^3.4.2
+        specifier: ^3.5.3
         version: 3.5.3
       prettier-plugin-svelte:
         specifier: ^3.3.3
@@ -91,22 +91,22 @@ importers:
         specifier: ^0.6.11
         version: 0.6.11(prettier-plugin-svelte@3.3.3(prettier@3.5.3)(svelte@5.25.7))(prettier@3.5.3)
       svelte:
-        specifier: ^5.0.0
+        specifier: ^5.25.7
         version: 5.25.7
       svelte-5-ui-lib:
         specifier: ^0.12.6
         version: 0.12.6(svelte@5.25.7)(tailwindcss@4.1.3)
       svelte-check:
-        specifier: ^4.0.0
+        specifier: ^4.1.5
         version: 4.1.5(picomatch@4.0.2)(svelte@5.25.7)(typescript@5.8.3)
       tailwindcss:
-        specifier: ^4.0.0
+        specifier: ^4.1.3
         version: 4.1.3
       typescript:
-        specifier: ^5.0.0
+        specifier: ^5.8.3
         version: 5.8.3
       typescript-eslint:
-        specifier: ^8.20.0
+        specifier: ^8.29.0
         version: 8.29.0(eslint@9.24.0(jiti@2.4.2))(typescript@5.8.3)
       vite:
         specifier: ^6.2.5
@@ -2258,8 +2258,8 @@ packages:
   tailwind-merge@3.0.2:
     resolution: {integrity: sha512-l7z+OYZ7mu3DTqrL88RiKrKIqO3NcpEO8V/Od04bNpvk0kiIFndGEoqfuzvj4yuhRkHKjRkII2z+KS2HfPcSxw==}
 
-  tailwind-merge@3.1.0:
-    resolution: {integrity: sha512-aV27Oj8B7U/tAOMhJsSGdWqelfmudnGMdXIlMnk1JfsjwSjts6o8HyfN7SFH3EztzH4YH8kk6GbLTHzITJO39Q==}
+  tailwind-merge@3.2.0:
+    resolution: {integrity: sha512-FQT/OVqCD+7edmmJpsgCsY820RTD5AkBryuG5IUqR5YQZSdj5xlH5nLgH7YPths7WsLPSpSBNneJdM8aS8aeFA==}
 
   tailwind-variants@1.0.0:
     resolution: {integrity: sha512-2WSbv4ulEEyuBKomOunut65D8UZwxrHoRfYnxGcQNnHqlSCp2+B7Yz2W+yrNDrxRodOXtGD/1oCcKGNBnUqMqA==}
@@ -4261,7 +4261,7 @@ snapshots:
       clsx: 2.1.1
       deepmerge: 4.3.1
       svelte: 5.25.7
-      tailwind-merge: 3.1.0
+      tailwind-merge: 3.2.0
       tailwind-variants: 1.0.0(tailwindcss@4.1.3)
     transitivePeerDependencies:
       - tailwindcss
@@ -4315,7 +4315,7 @@ snapshots:
 
   tailwind-merge@3.0.2: {}
 
-  tailwind-merge@3.1.0: {}
+  tailwind-merge@3.2.0: {}
 
   tailwind-variants@1.0.0(tailwindcss@4.1.3):
     dependencies:

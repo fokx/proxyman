@@ -1,5 +1,5 @@
 <script lang="ts">
-	import '../app.css';
+	import { onMount, tick } from 'svelte';
 	import Typeahead from 'svelte-typeahead';
 	import { TestType, ToastType } from '$lib';
 	import { browser } from '$app/environment';
@@ -10,6 +10,7 @@
 	let selected_proxy = $state(data.current_proxy);
 	let test_usability_controller = null;
 	let filterUsable = $state(true);
+	let statusBannerContainer: HTMLDivElement = $state(null);
 
 	let filteredProxies = $derived.by(() => {
 		if (filterUsable) {
@@ -19,15 +20,11 @@
 		}
 	});
 
-	// ws.onmessage = (e) => {
-	//
-	// }
-
 	if (browser) {
 		const socket = new WebSocket('/ws/push-proxy-info');
 		socket.onmessage = (event) => {
 			let data = JSON.parse(event.data);
-			if (data['type'] == 'current-proxy'){
+			if (data['type'] == 'current-proxy') {
 				let p = all_proxies.find(proxy => proxy.local_port === data['data']['from_port']);
 				if (p) {
 					selected_proxy = p;
@@ -36,7 +33,9 @@
 			if (data['type'] == 'all-proxies') {
 				all_proxies = data['data'];
 			}
-	}}
+		};
+	}
+
 	function get_service_name(proxy) {
 		return proxy.tool + '@' + proxy.name;
 	}
@@ -44,9 +43,11 @@
 	function msg_toast(msg: string, timeout_ms = 2000, type = ToastType.INFO) {
 		let id = Date.now();
 		status_banners.push({ id: id, msg: msg, type: type });
-		setTimeout(() => {
-			status_banners = status_banners.filter((item) => item.id !== id);
-		}, timeout_ms);
+		if (timeout_ms != -1) {
+			setTimeout(() => {
+				status_banners = status_banners.filter((item) => item.id !== id);
+			}, timeout_ms);
+		}
 	}
 
 	async function service_operation(action, name) {
@@ -63,7 +64,7 @@
 				const errorText = await response.text();
 				msg_toast(errorText, 10000, ToastType.ERROR);
 			} else if (response.status === 200) {
-				msg_toast('' + action + ' service ' + name + ' successfully', 2000, ToastType.SUCCESS);
+				msg_toast('' + action + ' service ' + name + ' successfully', -1, ToastType.SUCCESS);
 			}
 		} catch (error) {
 			alert('Error:' + error);
@@ -84,7 +85,7 @@
 				const errorText = await response.text();
 				msg_toast(errorText, 10000, ToastType.ERROR);
 			} else if (response.status === 200) {
-				msg_toast('restart proxygen with new from port ' + from_port + ' successfully', 2000, ToastType.SUCCESS);
+				msg_toast('restart proxygen with new from port ' + from_port + ' successfully', -1, ToastType.SUCCESS);
 			}
 		} catch (error) {
 			alert('Error:' + error);
@@ -118,7 +119,6 @@
 
 		try {
 			await Promise.all(promises);
-			msg_toast('connectivity test finished!', 5000, ToastType.WARNING);
 		} catch (error) {
 			if (error.name === 'AbortError') {
 				msg_toast('Usability tests were cancelled', 5000, ToastType.WARNING);
@@ -136,8 +136,19 @@
 		test_usability_controller = null;
 		msg_toast('Cancelled!', 5000, ToastType.WARNING);
 	}
-</script>
 
+	onMount(() => {
+		if (statusBannerContainer) {
+			statusBannerContainer.scroll(0, 1);
+		}
+		$effect.pre(() => {
+			$state.snapshot(status_banners);
+				tick().then(() => {
+					statusBannerContainer.scrollTo(0, statusBannerContainer.scrollHeight);
+				});
+		});
+	});
+</script>
 {#snippet display_proxy(p)}
 	{#if p}
 		<p>
@@ -151,18 +162,18 @@
 				<span>{p.tool}</span>
 			{/if}
 			@{p.name}
-			<span>{p.local_port}</span>
+			:<span>{p.local_port}</span>
 			{#if p.latency_ms}
-				latency: <span>{p.latency_ms.toFixed(1)}</span> ms
+				latency: <span>{p.latency_ms.toFixed(1)}</span> ms,
 			{/if}
 			{#if p.usable !== undefined && p.usable !== null}
 				usable:
 				{#if p.usable}✅{:else}❌{/if}
 			{/if}
-			<button class="bg-amber-100 mx-1" onclick={()=>service_operation("restart", get_service_name(p))}>Restart</button>
-			<button class="bg-amber-100 mx-1" onclick={()=>test_usability(p, TestType.USABLITY)}>Test Usability</button>
-			<button class="bg-amber-100 mx-1" onclick={()=>test_usability(p, TestType.LATENCY)}>Test Latency</button>
-			<button class="bg-amber-100 mx-1" onclick={()=>restart_proxygen(p.local_port)}>Use this proxy</button>
+			<button onclick={() => service_operation("restart", get_service_name(p))}>Restart</button>
+			<button onclick={()=>test_usability(p, TestType.USABLITY)}>Test Usability</button>
+			<button onclick={()=>test_usability(p, TestType.LATENCY)}>Test Latency</button>
+			<button onclick={()=>restart_proxygen(p.local_port)}>Use this proxy</button>
 		</p>
 	{:else}
 		<p class="text-red-500">
@@ -170,8 +181,7 @@
 		</p>
 	{/if}
 {/snippet}
-
-<div class="prose-xl lg:prose-2xl max-w-7xl mx-auto">
+<div class="prose-xl lg:prose-2xl max-w-7xl mx-auto button-theme">
 	{#if all_proxies}
 		<div class="bg-gray-100">
 			{#if selected_proxy}
@@ -181,10 +191,10 @@
 				<p class="text-red-500">No proxygen running</p>
 			{/if}
 		</div>
-		<button class="bg-amber-100 mx-1" onclick={()=>test_usabilities(TestType.USABLITY)}>Test usabilities</button>
-		<button class="bg-amber-100 mx-1" onclick={()=>test_usabilities(TestType.LATENCY)}>Test latencies</button>
-		<button class="bg-amber-100 mx-1" onclick={()=>cancel_test_usabilities()}>Cancel tests</button>
-		<div class="bg-green-50">
+		<button onclick={()=>test_usabilities(TestType.USABLITY)}>Test usabilities</button>
+		<button onclick={()=>test_usabilities(TestType.LATENCY)}>Test latencies</button>
+		<button onclick={()=>cancel_test_usabilities()}>Cancel tests</button>
+		<div class="bg-green-50 h-48 overflow-y-scroll" bind:this={statusBannerContainer}>
 			{#each status_banners as banner}
 				{#if banner.type === ToastType.INFO}
 					<p class="text-blue-500">
@@ -205,7 +215,6 @@
 				{/if}
 			{/each}
 		</div>
-
 		<Typeahead
 			label="Change proxy"
 			showAllResultsOnFocus={true}
