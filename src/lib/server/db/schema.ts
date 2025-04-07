@@ -12,9 +12,11 @@ export const proxies = sqliteTable('proxies', {
 	sni: text(),
 	local_addr: integer(),
 	local_port: integer(),
-	last_usable: integer({mode: 'timestamp'}),
 	usable: integer({mode: 'boolean'}),
+	usable_updated_at: integer({mode: 'timestamp'}),
 	latency_ms: integer(),
+	latency_updated_at: integer({mode: 'timestamp'}),
+	outgoing_ip: text(),
 	created_at: integer({ mode: 'timestamp' }),
 	updated_at: integer({ mode: 'timestamp' }),
 }, (t) => [

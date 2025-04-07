@@ -3,6 +3,7 @@ import { json } from '@sveltejs/kit';
 import { spawn } from 'child_process';
 import process from 'node:process';
 import { get_proxygen_pid } from '$lib/server';
+import { spwan_proxygen } from '$lib/server';
 
 export const POST: RequestHandler = async ({ request }) => {
 	const { from_port } = await request.json();
@@ -15,9 +16,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		} else {
 			console.log('proxygen not running');
 		}
-		console.log('starting spwan');
-		spawn('proxygen', ['--to', '3999', '--from', from_port]).stdout.toString().trim();
-		console.log('proxygen spwaned');
+		spwan_proxygen(from_port);
 		return json({ output: 'spawned' }, { status: 200 });
 	} catch (error) {
 		// convert error to string

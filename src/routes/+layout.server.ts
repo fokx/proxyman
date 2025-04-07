@@ -9,7 +9,7 @@ import { spawnSync } from 'child_process';
 import yaml from 'yaml';
 import assert from 'node:assert';
 import { parse, stringify } from 'yaml'
-import { get_proxygen_pid } from '$lib/server';
+import { get_proxygen_pid, spwan_proxygen } from '$lib/server';
 async function read_tuic_cfg(file: string) {
 	const cfg = JSON.parse(await fs.readFile(file, 'utf8'));
 	const stats = await fs.stat(file);
@@ -89,6 +89,22 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
 	}
 	const proxyList = await dbs.select().from(proxies);
 	let pid = get_proxygen_pid();
+	if (!pid) {
+		// sort by latency
+		proxyList.sort((a, b) => {
+			if (a.latency_ms === null) {
+				return 1;
+			}
+			if (b.latency_ms === null) {
+				return -1;
+			}
+			return a.latency_ms - b.latency_ms;
+		});
+		let new_port = proxyList[0].local_port;
+		console.log('no pid, spwan new proxygen with port: ', new_port);
+		spwan_proxygen(new_port);
+		pid = get_proxygen_pid();
+	}
 	let current_proxygen_port;
 	if (pid) {
 		await fs.readFile("/proc/"+pid+"/cmdline", 'utf8').then((data) => {

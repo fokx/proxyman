@@ -1,7 +1,7 @@
 import * as dotenv from 'dotenv';
 import { drizzle } from 'drizzle-orm/better-sqlite3';
 import Database from 'better-sqlite3';
-import { spawnSync } from 'child_process';
+import { spawn, spawnSync } from 'child_process';
 
 dotenv.config();
 
