@@ -7,8 +7,7 @@
 	let { data } = $props();
 	let status_banners = $state([]);
 	let all_proxies = $state(data.all_proxies);
-	let current_proxy = data.current_proxy;
-	let selected_proxy = $state(current_proxy);
+	let selected_proxy = $state(data.current_proxy);
 	let test_usability_controller = null;
 	let filterUsable = $state(true);
 
@@ -25,14 +24,19 @@
 	// }
 
 	if (browser) {
-		const socket = new WebSocket('/ws/push-all-proxies');
-		socket.addEventListener('message', (event) => {
-			all_proxies = JSON.parse(event.data);
-			// console.log('Message from server ', event.data);
-			// const myData = JSON.parse(event.data);
-			// console.log('Parsed JSON', myData);
-		});
-	}
+		const socket = new WebSocket('/ws/push-proxy-info');
+		socket.onmessage = (event) => {
+			let data = JSON.parse(event.data);
+			if (data['type'] == 'current-proxy'){
+				let p = all_proxies.find(proxy => proxy.local_port === data['data']['from_port']);
+				if (p) {
+					selected_proxy = p;
+				}
+			}
+			if (data['type'] == 'all-proxies') {
+				all_proxies = data['data'];
+			}
+	}}
 	function get_service_name(proxy) {
 		return proxy.tool + '@' + proxy.name;
 	}
@@ -158,6 +162,7 @@
 			<button class="bg-amber-100 mx-1" onclick={()=>service_operation("restart", get_service_name(p))}>Restart</button>
 			<button class="bg-amber-100 mx-1" onclick={()=>test_usability(p, TestType.USABLITY)}>Test Usability</button>
 			<button class="bg-amber-100 mx-1" onclick={()=>test_usability(p, TestType.LATENCY)}>Test Latency</button>
+			<button class="bg-amber-100 mx-1" onclick={()=>restart_proxygen(p.local_port)}>Use this proxy</button>
 		</p>
 	{:else}
 		<p class="text-red-500">

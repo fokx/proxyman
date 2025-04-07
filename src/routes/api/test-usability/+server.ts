@@ -5,7 +5,6 @@ import { TestType, URL_LATENCY_TEST, URL_USABILITY_TEST } from '$lib';
 import { dbs } from '$lib/server/db';
 import { proxies } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
-// import { notifyClients } from '../../../websocket-server';
 import { publish } from '$app/server';
 
 export const POST: RequestHandler = async ({ request }) => {
@@ -35,6 +34,6 @@ export const POST: RequestHandler = async ({ request }) => {
 		.set({ usable: status_code === 200, usable_updated_at: new Date() })
 		.where(eq(proxies.local_port, socks5_port));
 	const data = dbs.select().from(proxies).all();
-	publish('all-proxies', JSON.stringify(data));
+	publish('all-proxies', {type: "all-proxies", data: data});
 	return json({ output: output }, { status: status_code });
 };

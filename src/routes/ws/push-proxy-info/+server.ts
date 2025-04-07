@@ -3,6 +3,7 @@ import { type Socket } from '@sveltejs/kit';
 export const socket: Socket = {
 	open(peer) {
 		peer.subscribe('all-proxies');
+		peer.subscribe('current-proxy');
 	},
 
 	message(peer, message) {
