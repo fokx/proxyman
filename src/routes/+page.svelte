@@ -2,15 +2,37 @@
 	import '../app.css';
 	import Typeahead from 'svelte-typeahead';
 	import { TestType, ToastType } from '$lib';
+	import { browser } from '$app/environment';
 
 	let { data } = $props();
 	let status_banners = $state([]);
-	let proxies = data.proxies;
+	let all_proxies = $state(data.all_proxies);
 	let current_proxy = data.current_proxy;
 	let selected_proxy = $state(current_proxy);
 	let test_usability_controller = null;
 	let filterUsable = $state(true);
 
+	let filteredProxies = $derived.by(() => {
+		if (filterUsable) {
+			return all_proxies.filter(proxy => proxy.usable).sort((a, b) => a.latency_ms - b.latency_ms);
+		} else {
+			return all_proxies.filter(proxy => !proxy.usable).sort((a, b) => a.latency_ms - b.latency_ms);
+		}
+	});
+
+	// ws.onmessage = (e) => {
+	//
+	// }
+
+	if (browser) {
+		const socket = new WebSocket('/ws/push-all-proxies');
+		socket.addEventListener('message', (event) => {
+			all_proxies = JSON.parse(event.data);
+			// console.log('Message from server ', event.data);
+			// const myData = JSON.parse(event.data);
+			// console.log('Parsed JSON', myData);
+		});
+	}
 	function get_service_name(proxy) {
 		return proxy.tool + '@' + proxy.name;
 	}
@@ -86,7 +108,7 @@
 		const controller = new AbortController();
 		const signal = controller.signal;
 
-		const promises = proxies.map(async (proxy) => {
+		const promises = all_proxies.map(async (proxy) => {
 			test_usability(proxy, type, signal);
 		});
 
@@ -110,13 +132,6 @@
 		test_usability_controller = null;
 		msg_toast('Cancelled!', 5000, ToastType.WARNING);
 	}
-	let filteredProxies = $derived.by(() => {
-		if (filterUsable) {
-			return proxies.filter(proxy => proxy.usable).sort((a, b) => a.latency_ms - b.latency_ms);
-		} else {
-			return proxies.filter(proxy => !proxy.usable).sort((a, b) => a.latency_ms - b.latency_ms);
-		}
-	});
 </script>
 
 {#snippet display_proxy(p)}
@@ -134,7 +149,7 @@
 			@{p.name}
 			<span>{p.local_port}</span>
 			{#if p.latency_ms}
-				latency: <span>{p.latency_ms}</span> ms
+				latency: <span>{p.latency_ms.toFixed(1)}</span> ms
 			{/if}
 			{#if p.usable !== undefined && p.usable !== null}
 				usable:
@@ -152,7 +167,7 @@
 {/snippet}
 
 <div class="prose-xl lg:prose-2xl max-w-7xl mx-auto">
-	{#if proxies}
+	{#if all_proxies}
 		<div class="bg-gray-100">
 			{#if selected_proxy}
 				<p>Current proxy in use:</p>
@@ -186,25 +201,24 @@
 			{/each}
 		</div>
 
-		<div class="flex space-x-4 my-4">
-			<label>
-				<input type="checkbox" bind:checked={filterUsable} />
-				toggle usable
-			</label>
-		</div>
-
 		<Typeahead
-			label="Proxy list"
+			label="Change proxy"
 			showAllResultsOnFocus={true}
 			inputAfterSelect="clear"
-			placeholder={`Search a proxy (e.g. "lax")`}
-			data={proxies}
+			placeholder={`Search a proxy (e.g. "lax") and click to switch`}
+			data={all_proxies}
 			extract={(item) => get_service_name(item)}
 			disable={(item) => /mnz/.test(item.name)}
 			on:select={({ detail }) => {selected_proxy = detail.original; restart_proxygen(detail.original.local_port);}}
 		/>
 
-		{#if proxies.length > 0}
+		{#if filteredProxies.length > 0}
+			<div class="flex space-x-4 my-4">
+				<label>
+					<input type="checkbox" bind:checked={filterUsable} />
+					toggle usable
+				</label>
+			</div>
 			{#each filteredProxies as proxy}
 				{@render display_proxy(proxy)}
 			{/each}

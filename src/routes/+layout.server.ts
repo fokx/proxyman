@@ -122,7 +122,7 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
 	}
 	return {
 		current_proxy: current_proxy,
-		proxies: proxyList
+		all_proxies: proxyList
 	};
 };
 

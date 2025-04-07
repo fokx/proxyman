@@ -14,13 +14,14 @@
 		"lint": "prettier --check . && eslint .",
 		"db:push": "drizzle-kit push",
 		"db:migrate": "drizzle-kit migrate",
-		"db:studio": "drizzle-kit studio"
+		"db:studio": "drizzle-kit studio",
+		"startws": "tsx src/websocket-server.ts"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^1.2.5",
 		"@eslint/js": "^9.18.0",
-		"@sveltejs/adapter-node": "^5.2.12",
-		"@sveltejs/kit": "^2.16.0",
+		"@sveltejs/adapter-node": "https://pkg.pr.new/sveltejs/kit/@sveltejs/adapter-node@12973",
+		"@sveltejs/kit": "https://pkg.pr.new/sveltejs/kit/@sveltejs/kit@12973",
 		"@sveltejs/vite-plugin-svelte": "^5.0.0",
 		"@tailwindcss/aspect-ratio": "^0.4.2",
 		"@tailwindcss/container-queries": "^0.1.1",
@@ -60,6 +61,7 @@
 		"glob": "^11.0.1",
 		"node-gyp": "^11.2.0",
 		"svelte-typeahead": "^5.0.0",
+		"ws": "^8.18.1",
 		"yaml": "^2.7.1"
 	}
 }
