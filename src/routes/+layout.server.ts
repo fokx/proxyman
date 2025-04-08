@@ -1,29 +1,22 @@
 import type { LayoutServerLoad } from './$types';
 import { dbs } from '$lib/server/db';
-import { glob } from 'glob';
 import { proxies } from '$lib/server/db/schema';
 import fs from 'node:fs/promises';
-import {globSync} from 'glob';
-import { spawnSync } from 'child_process';
-
-import yaml from 'yaml';
-import assert from 'node:assert';
-import { parse, stringify } from 'yaml'
-import { get_proxygen_pid, run_proxygen_if_not_running, spwan_proxygen } from '$lib/server';
+import { run_proxygen_if_not_running } from '$lib/server';
 
 export const load: LayoutServerLoad = async ({ locals, url }) => {
 	const proxyList = await dbs.select().from(proxies);
-	let pid = await run_proxygen_if_not_running();
+	const pid = await run_proxygen_if_not_running();
 	let current_proxygen_port;
 	if (pid) {
-		await fs.readFile("/proc/"+pid+"/cmdline", 'utf8').then((data) => {
+		await fs.readFile('/proc/' + pid + '/cmdline', 'utf8').then((data) => {
 			const args = data.split('\0');
 			const proxy_arg_index = args.indexOf('--from');
 			if (proxy_arg_index !== -1) {
-				current_proxygen_port = args[proxy_arg_index+1];
+				current_proxygen_port = args[proxy_arg_index + 1];
 				current_proxygen_port = parseInt(current_proxygen_port);
 			}
-		})
+		});
 	}
 
 	let current_proxy;
@@ -35,5 +28,3 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
 		all_proxies: proxyList
 	};
 };
-
-

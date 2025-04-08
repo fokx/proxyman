@@ -10,7 +10,7 @@ import { publish } from '$app/server';
 export const POST: RequestHandler = async ({ request }) => {
 	const { socks5_port, type } = await request.json();
 	let status_code = 200;
-	let output = '';
+	let output;
 	try {
 		let command = '';
 		if (type === TestType.USABLITY) {
@@ -34,6 +34,6 @@ export const POST: RequestHandler = async ({ request }) => {
 		.set({ usable: status_code === 200, usable_updated_at: new Date() })
 		.where(eq(proxies.local_port, socks5_port));
 	const data = dbs.select().from(proxies).all();
-	publish('all-proxies', {type: "all-proxies", data: data});
+	publish('all-proxies', { type: 'all-proxies', data: data });
 	return json({ output: output }, { status: status_code });
 };

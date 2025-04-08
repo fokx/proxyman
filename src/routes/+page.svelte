@@ -143,9 +143,9 @@
 		}
 		$effect.pre(() => {
 			$state.snapshot(status_banners);
-				tick().then(() => {
-					statusBannerContainer.scrollTo(0, statusBannerContainer.scrollHeight);
-				});
+			tick().then(() => {
+				statusBannerContainer.scrollTo(0, statusBannerContainer.scrollHeight);
+			});
 		});
 	});
 </script>
