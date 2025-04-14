@@ -11,17 +11,20 @@ export const POST: RequestHandler = async ({ request }) => {
 	const { socks5_port, type } = await request.json();
 	let status_code = 200;
 	let output;
+	const command_proxychains = `proxychains4 -q -f /etc/pc/${socks5_port}.conf curl -sS --connect-timeout 10`;
+	const command_curl = `curl -sS --connect-timeout 10 -x socks5h://localhost:${socks5_port}`;
 	try {
 		let command = '';
 		if (type === TestType.USABLITY) {
-			command = `curl --connect-timeout 3 --socks5 localhost:${socks5_port} -I ${URL_USABILITY_TEST}`;
+			command = `curl -sS --connect-timeout 3 -x socks5h://localhost:${socks5_port} -I ${URL_USABILITY_TEST}`;
 		} else if (type === TestType.LATENCY) {
-			command = `curl --connect-timeout 6 --socks5 localhost:${socks5_port} -w '%{time_pretransfer}' -o /dev/null ${URL_LATENCY_TEST}`;
+			command = `curl -sS --connect-timeout 6 -x socks5h://localhost:${socks5_port} -w '%{time_pretransfer}' -o /dev/null ${URL_LATENCY_TEST}`;
 		} else if (type === TestType.IPV4) {
-			command = `curl --connect-timeout 6 --socks5 localhost:${socks5_port} ${URL_IPV4_TEST}`;
+			command = `${command_curl} ${URL_IPV4_TEST}`;
 		} else if (type === TestType.IPV6) {
-			command = `curl --connect-timeout 6 --socks5 localhost:${socks5_port} ${URL_IPV6_TEST}`;
+			command = `${command_curl} ${URL_IPV6_TEST}`;
 		}
+		console.log(command);
 		output = execSync(command).toString();
 	} catch (error) {
 		output = error instanceof Error ? error.message : String(error);
@@ -66,9 +69,15 @@ export const POST: RequestHandler = async ({ request }) => {
 	} else if (type === TestType.LATENCY) {
 		await dbs
 			.update(proxies)
-			.set({ latency_ms: 1000 * parseFloat(output), latency_updated_at: new Date() })
+			.set({ latency_ms: 1000 * parseFloat(output), latency_updated_at: new Date()})
 			.where(eq(proxies.local_port, socks5_port));
-	} else if (type === TestType.LATENCY || type === TestType.USABLITY) {
+	} else if (type === TestType.USABLITY) 	{
+		/* empty */
+	} else {
+		return json({ message: `Invalid test type: ${type} not supported by API backend` }, { status: 400 });
+	}
+	if (type !== TestType.IPV6) {
+		// won't update usability if ipv6 test failed
 		await dbs
 			.update(proxies)
 			.set({ usable: status_code === 200, usable_updated_at: new Date() })

@@ -128,14 +128,14 @@
 			await Promise.all(promises);
 		} catch (error) {
 			if (error.name === 'AbortError') {
-				msg_toast('Usability tests were cancelled', 5000, ToastType.WARNING);
+				msg_toast('Tests were cancelled', 5000, ToastType.WARNING);
 			} else {
-				msg_toast('An error occurred during usability tests', 5000, ToastType.ERROR);
+				msg_toast('An error occurred during tests', 5000, ToastType.ERROR);
 			}
 		}
 
 		test_usability_controller = controller;
-		msg_toast('connectivity test in progress', 5000, ToastType.WARNING);
+		msg_toast('Tests in progress', 5000, ToastType.WARNING);
 	}
 
 	function cancel_test_usabilities() {
@@ -167,8 +167,7 @@
 				<span class="text-orange-500">{p.tool}</span>
 			{:else}
 				<span>{p.tool}</span>
-			{/if}
-			@{p.name}
+			{/if}@{p.name}
 			:<span>{p.local_port}</span>
 			{#if p.latency_ms}
 				latency: <span>{p.latency_ms.toFixed(1)}</span> ms,
