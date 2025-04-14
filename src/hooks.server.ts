@@ -1,5 +1,5 @@
 import { globSync } from 'glob';
-import { dbs } from '$lib/server/db/index.js';
+import { sqlite3_db, dbs } from '$lib/server/db/index.js';
 import { read_hyc_cfg, read_np_cfg, read_tuic_cfg, run_proxygen_if_not_running } from '$lib/server';
 import { proxies } from '$lib/server/db/schema.js';
 import type { ServerInit } from '@sveltejs/kit';
@@ -43,3 +43,26 @@ export const init: ServerInit = async () => {
 
 	await run_proxygen_if_not_running();
 };
+
+process.on('sveltekit:shutdown', async (reason) => {
+	console.warn(reason);
+	await sqlite3_db.close();
+	console.log('sqlite3_db closed');
+});
+
+process.on('SIGINT',
+	async () => {
+		console.log('\nSIGINT received, shutting down...');
+		await sqlite3_db.close();
+		console.log('sqlite3_db closed');
+		process.exit(0);
+	});
+
+process.on('SIGTERM',
+	async () => {
+		console.log('\nSIGTERM received, shutting down...');
+		await sqlite3_db.close();
+		console.log('sqlite3_db closed');
+		process.exit(0);
+	});
+
