@@ -18,7 +18,12 @@ export const proxies = sqliteTable(
 		usable_updated_at: integer({ mode: 'timestamp' }),
 		latency_ms: integer(),
 		latency_updated_at: integer({ mode: 'timestamp' }),
-		outgoing_ip: text(),
+		outgoing_ipv4: text(),
+		outgoing_ipv4_location: text(),
+		outgoing_ipv4_country: text(),
+		outgoing_ipv6: text(),
+		outgoing_ipv6_location: text(),
+		outgoing_ipv6_country: text(),
 		created_at: integer({ mode: 'timestamp' }),
 		updated_at: integer({ mode: 'timestamp' })
 	},

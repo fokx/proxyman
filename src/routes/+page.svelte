@@ -7,6 +7,7 @@
 	let { data } = $props();
 	let status_banners = $state([]);
 	let all_proxies = $state(data.all_proxies);
+	let ipinfo = $state();
 	let selected_proxy = $state(data.current_proxy);
 	let test_usability_controller = null;
 	let filterUsable = $state(true);
@@ -29,9 +30,10 @@
 				if (p) {
 					selected_proxy = p;
 				}
-			}
-			if (data['type'] == 'all-proxies') {
+			} else if (data['type'] == 'all-proxies') {
 				all_proxies = data['data'];
+			} else if (data['type'] == 'ipinfo') {
+				ipinfo = data['data'];
 			}
 		};
 	}
@@ -93,6 +95,11 @@
 	}
 
 	async function test_usability(proxy, type: TestType, signal = null) {
+		if (type === TestType.IP) {
+			test_usability(proxy, TestType.IPV4, signal);
+			test_usability(proxy, TestType.IPV6, signal);
+			return;
+		}
 		const response = await fetch('/api/test-usability', {
 			method: 'POST',
 			headers: {
@@ -170,7 +177,28 @@
 				usable:
 				{#if p.usable}✅{:else}❌{/if}
 			{/if}
+			{#if p.outgoing_ipv4}
+				ipv4: <span>{p.outgoing_ipv4}</span>
+			{/if}
+			{#if p.outgoing_ipv4_location}
+				<span>loc: {p.outgoing_ipv4_location}</span>
+			{/if}
+			{#if p.outgoing_ipv4_country}
+				<span>C: {p.outgoing_ipv4_country}</span>
+			{/if}
+			{#if p.outgoing_ipv6}
+				ipv6: <span>{p.outgoing_ipv6}</span>
+			{/if}
+			{#if p.outgoing_ipv6_location}
+				<span>loc: {p.outgoing_ipv6_location}</span>
+			{/if}
+			{#if p.outgoing_ipv6_country}
+				<span>C: {p.outgoing_ipv6_country}</span>
+			{/if}
+		</p>
+		<p>
 			<button onclick={() => service_operation("restart", get_service_name(p))}>Restart</button>
+			<button onclick={()=>test_usability(p, TestType.IP)}>Test IP</button>
 			<button onclick={()=>test_usability(p, TestType.USABLITY)}>Test Usability</button>
 			<button onclick={()=>test_usability(p, TestType.LATENCY)}>Test Latency</button>
 			<button onclick={()=>restart_proxygen(p.local_port)}>Use this proxy</button>
@@ -190,7 +218,16 @@
 			{:else}
 				<p class="text-red-500">No proxygen running</p>
 			{/if}
+			{#if ipinfo}
+				<!--				<p>IP info:</p>-->
+				<!--				<p>{ipinfo.ip}</p>-->
+				<!--				<p>{ipinfo.city}, {ipinfo.region}, {ipinfo.country}</p>-->
+				<!--				<p>{ipinfo.org}</p>-->
+			{:else}
+				<p class="text-gray-500">No info about current IP</p>
+			{/if}
 		</div>
+		<button onclick={()=>test_usabilities(TestType.IP)}>Test IPs</button>
 		<button onclick={()=>test_usabilities(TestType.USABLITY)}>Test usabilities</button>
 		<button onclick={()=>test_usabilities(TestType.LATENCY)}>Test latencies</button>
 		<button onclick={()=>cancel_test_usabilities()}>Cancel tests</button>
@@ -237,7 +274,10 @@
 				{@render display_proxy(proxy)}
 			{/each}
 		{:else}
-			<p>No proxies found</p>
+			<p>No usable proxies, here is all:</p>
+			{#each all_proxies as proxy}
+				{@render display_proxy(proxy)}
+			{/each}
 		{/if}
 	{/if}
 </div>

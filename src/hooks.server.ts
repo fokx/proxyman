@@ -27,6 +27,8 @@ export const init: ServerInit = async () => {
 			})
 		))
 	);
+	console.log('adding cfgs', cfgs);
+	console.log('if missing some cfgs, run\nsudo chown -R tr:liu /etc/tuicc /etc/hyc /etc/np/\n');
 	await dbs.transaction(async (trx) => {
 		for (const cfg of cfgs) {
 			await trx

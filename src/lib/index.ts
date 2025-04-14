@@ -14,5 +14,8 @@ export enum ToastType {
 
 export enum TestType {
 	USABLITY = 'usability',
-	LATENCY = 'latency'
+	LATENCY = 'latency',
+	IP = 'ip',
+	IPV4 = 'ipv4',
+	IPV6 = 'ipv6'
 }
