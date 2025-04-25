@@ -94,38 +94,47 @@
 		}
 	}
 
-	async function test_usability(proxy, type: TestType, signal = null) {
+	function test_usability(proxy, type: TestType, signal = null) {
 		if (type === TestType.IP) {
 			test_usability(proxy, TestType.IPV4, signal);
 			test_usability(proxy, TestType.IPV6, signal);
 			return;
 		}
-		const response = await fetch('/api/test-usability', {
+		console.log('sending req');
+		fetch('/api/test-usability', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
 			},
 			body: JSON.stringify({ socks5_port: proxy.local_port, type: type }),
 			signal: signal
-		});
-		if (!response.ok) {
-			const errorText = await response.text();
-			msg_toast(errorText, 10000, ToastType.ERROR);
-		} else if (response.status === 200) {
-			msg_toast('test usability for ' + proxy.tool + '@' + proxy.name + ' successfully', 2000, ToastType.SUCCESS);
-		}
+		})
+			.then((response) => {
+				if (!response.ok) {
+					return response.text().then((errorText) => {
+						msg_toast(errorText, 10000, ToastType.ERROR);
+					});
+				} else if (response.status === 200) {
+					msg_toast('test usability for ' + proxy.tool + '@' + proxy.name + ' successfully', 2000, ToastType.SUCCESS);
+				}
+			})
+			.catch((error) => {
+				msg_toast('Error: ' + error.message, 10000, ToastType.ERROR);
+			});
 	}
 
 	async function test_usabilities(type: TestType) {
+
 		const controller = new AbortController();
 		const signal = controller.signal;
+		const promises = all_proxies.map((proxy) => test_usability(proxy, type, signal));
 
-		const promises = all_proxies.map(async (proxy) => {
-			test_usability(proxy, type, signal);
-		});
+		test_usability_controller = controller;
+		msg_toast('Tests in progress', 5000, ToastType.WARNING);
 
 		try {
 			await Promise.all(promises);
+			msg_toast('All tests completed successfully', 5000, ToastType.SUCCESS);
 		} catch (error) {
 			if (error.name === 'AbortError') {
 				msg_toast('Tests were cancelled', 5000, ToastType.WARNING);
@@ -133,9 +142,6 @@
 				msg_toast('An error occurred during tests', 5000, ToastType.ERROR);
 			}
 		}
-
-		test_usability_controller = controller;
-		msg_toast('Tests in progress', 5000, ToastType.WARNING);
 	}
 
 	function cancel_test_usabilities() {
