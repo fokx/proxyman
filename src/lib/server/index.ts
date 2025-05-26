@@ -18,6 +18,7 @@ export async function read_tuic_cfg(file: string) {
 		local_port: cfg.local.server.split(':').at(1),
 		created_at: stats.birthtime,
 		updated_at: stats.mtime,
+		config: cfg,
 		tool: 'tuicc'
 	};
 }
@@ -34,6 +35,7 @@ export async function read_hyc_cfg(file: string) {
 		local_port: cfg.socks5.listen.split(':').at(1),
 		created_at: stats.birthtime,
 		updated_at: stats.mtime,
+		config: cfg,
 		tool: 'hyc'
 	};
 }
@@ -53,6 +55,7 @@ export async function read_np_cfg(file: string) {
 		local_port: cfg.listen.replace('socks://', '').split(':').at(1),
 		created_at: stats.birthtime,
 		updated_at: stats.mtime,
+		config: cfg,
 		tool: 'np'
 	};
 }

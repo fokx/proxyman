@@ -9,8 +9,10 @@ export const proxies = sqliteTable(
 		id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
 		name: text().notNull(),
 		tool: text().notNull(),
+		config: text({mode: 'json'}),
 		remote_addr: text(),
 		remote_port: integer(),
+		remote_addr_type: text(), // ipv4, ipv6, domain name(may be dual-stack)
 		sni: text(),
 		local_addr: integer(),
 		local_port: integer(),
