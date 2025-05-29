@@ -1,8 +1,9 @@
 <script lang="ts">
-	import { onMount, tick } from 'svelte';
-	import Typeahead from 'svelte-typeahead';
-	import { TestType, ToastType } from '$lib';
-	import { browser } from '$app/environment';
+ import { onMount, tick } from 'svelte';
+ import Typeahead from 'svelte-typeahead';
+ import { TestType, ToastType } from '$lib';
+ import { browser } from '$app/environment';
+ import CodeEditorModal from '$lib/components/CodeEditorModal.svelte';
 
 	let { data } = $props();
 	let status_banners = $state([]);
@@ -14,6 +15,13 @@
 	let statusBannerContainer: HTMLDivElement = $state(null);
 	let selectedProxyType = $state('all');
 	let selectedOperation = $state('restart');
+
+	// Code editor state
+	let isEditorOpen = $state(false);
+	let editorTool = $state('');
+	let editorName = $state('');
+	let editorContent = $state('');
+	let editorFilePath = $state('');
 
 	let filteredProxies = $derived.by(() => {
 		if (filterUsable) {
@@ -170,6 +178,30 @@
 		msg_toast('Cancelled!', 5000, ToastType.WARNING);
 	}
 
+	async function openConfigEditor(proxy) {
+		try {
+			editorTool = proxy.tool;
+			editorName = proxy.name;
+
+			// Fetch the configuration file
+			const response = await fetch(`/api/config?tool=${proxy.tool}&name=${proxy.name}`);
+
+			if (!response.ok) {
+				const errorText = await response.text();
+				msg_toast(errorText, 10000, ToastType.ERROR);
+				return;
+			}
+
+			const data = await response.json();
+			editorContent = data.content;
+			editorFilePath = data.filePath;
+			isEditorOpen = true;
+		} catch (error) {
+			console.error('Error opening config editor:', error);
+			msg_toast(`Error opening config editor: ${error.message}`, 10000, ToastType.ERROR);
+		}
+	}
+
 	onMount(() => {
 		if (statusBannerContainer) {
 			statusBannerContainer.scroll(0, 1);
@@ -234,6 +266,7 @@
 			<button onclick={()=>test_usability(p, TestType.USABLITY)}>Test Usability</button>
 			<button onclick={()=>test_usability(p, TestType.LATENCY)}>Test Latency</button>
 			<button onclick={()=>restart_proxygen(p.local_port)}>Use this proxy</button>
+   <button onclick={() => openConfigEditor(p)}>Edit proxy config file</button>
 		</p>
 	{:else}
 		<p class="text-red-500">
@@ -331,3 +364,14 @@
 		{/if}
 	{/if}
 </div>
+
+<CodeEditorModal 
+	bind:isOpen={isEditorOpen}
+	bind:tool={editorTool}
+	bind:name={editorName}
+	bind:content={editorContent}
+	bind:filePath={editorFilePath}
+	on:close={() => {
+		isEditorOpen = false;
+	}}
+/>
