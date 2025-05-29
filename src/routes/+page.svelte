@@ -12,6 +12,8 @@
 	let test_usability_controller = null;
 	let filterUsable = $state(true);
 	let statusBannerContainer: HTMLDivElement = $state(null);
+	let selectedProxyType = $state('all');
+	let selectedOperation = $state('restart');
 
 	let filteredProxies = $derived.by(() => {
 		if (filterUsable) {
@@ -124,7 +126,6 @@
 	}
 
 	async function test_usabilities(type: TestType) {
-
 		const controller = new AbortController();
 		const signal = controller.signal;
 		const promises = all_proxies.map((proxy) => test_usability(proxy, type, signal));
@@ -140,6 +141,25 @@
 				msg_toast('Tests were cancelled', 5000, ToastType.WARNING);
 			} else {
 				msg_toast('An error occurred during tests', 5000, ToastType.ERROR);
+			}
+		}
+	}
+
+	async function service_batch_operation(action: string, proxyType: string = 'all') {
+		const filteredProxies = proxyType === 'all'
+			? all_proxies
+			: all_proxies.filter(p => p.tool === proxyType);
+		const promises = filteredProxies.map((p) => service_operation(action, get_service_name(p)));
+		msg_toast('Operations in progress', 5000, ToastType.WARNING);
+
+		try {
+			await Promise.all(promises);
+			msg_toast('All operations completed successfully', 5000, ToastType.SUCCESS);
+		} catch (error) {
+			if (error.name === 'AbortError') {
+				msg_toast('Operations were cancelled', 5000, ToastType.WARNING);
+			} else {
+				msg_toast('An error occurred during operations', 5000, ToastType.ERROR);
 			}
 		}
 	}
@@ -207,6 +227,8 @@
 			<button onclick={() => service_operation("server-restart", get_service_name(p))}>Restart on server</button>
 			<button onclick={() => service_operation("server-enable", get_service_name(p))}>Enable on server</button>
 			<button onclick={() => service_operation("server-disable", get_service_name(p))}>Disable on server</button>
+		</p>
+		<p>
 			<button onclick={() => service_operation("restart", get_service_name(p))}>Restart</button>
 			<button onclick={()=>test_usability(p, TestType.IP)}>Test IP</button>
 			<button onclick={()=>test_usability(p, TestType.USABLITY)}>Test Usability</button>
@@ -237,6 +259,23 @@
 			{:else}
 				<p class="text-gray-500">No info about current IP</p>
 			{/if}
+		</div>
+
+		<div class="flex gap-4 items-center mb-5">
+			<select bind:value={selectedProxyType} class="form-select">
+				<option value="all">all</option>
+				<option value="tuicc">tuicc</option>
+				<option value="hyc">hyc</option>
+				<option value="np">np</option>
+			</select>
+			<select bind:value={selectedOperation} class="form-select">
+				<option value="restart">Restart</option>
+				<option value="stop">Stop</option>
+				<option value="start">Start</option>
+				<option value="disable">Disable</option>
+				<option value="enable">Enable</option>
+			</select>
+			<button onclick={() => service_batch_operation(selectedOperation, selectedProxyType)}>Execute</button>
 		</div>
 		<button onclick={()=>test_usabilities(TestType.IP)}>Test IPs</button>
 		<button onclick={()=>test_usabilities(TestType.USABLITY)}>Test usabilities</button>
