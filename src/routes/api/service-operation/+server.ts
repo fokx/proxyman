@@ -9,7 +9,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		visudo, add:
 		username ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart np@*
 		username ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart hyc@*
-		username ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart tuicc@*
+		username ALL=(ALL) NOPASSWD: /usr/bin/systemctl * tuicc@*
 		username ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart xr@*
 		 */
 		if (action.startsWith("server-")) {

@@ -111,6 +111,10 @@ export async function run_proxygen_if_not_running() {
 			}
 			return a.latency_ms - b.latency_ms;
 		});
+		console.log(proxyList);
+		if (proxyList.length == 0) {
+			console.error('no proxy found from configs, please check permissions');
+		}
 		const new_port = proxyList[0].local_port;
 		console.log('no pid, spwan new proxygen with port: ', new_port);
 		spwan_proxygen(new_port);
