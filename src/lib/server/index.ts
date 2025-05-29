@@ -5,6 +5,9 @@ import { dbs } from '$lib/server/db';
 import { proxies } from '$lib/server/db/schema';
 import yaml from 'yaml';
 import assert from 'node:assert';
+import { dev } from '$app/environment';
+
+export const proxygen_listening_port = dev ? 63999 : 3999;
 
 export async function read_tuic_cfg(file: string) {
 	const cfg = JSON.parse(fs.readFileSync(file, 'utf8'));
@@ -61,27 +64,35 @@ export async function read_np_cfg(file: string) {
 }
 
 export function get_proxygen_pid() {
-	let pids = spawnSync('pgrep', ['-f', 'proxygen']).stdout.toString().trim().split(/\r?\n/);
-	if (pids.length === 0 || (pids.length === 1 && pids[0] === '')) {
+	// let pids = spawnSync('pgrep', ['-f', 'proxygen']).stdout.toString().trim().split(/\r?\n/);
+	let lines = spawnSync('ss', ['-tunlp', `sport = :${proxygen_listening_port}`]).stdout.toString().trim().split(/\r?\n/).slice(1);
+	if (lines.length === 0 || (lines.length === 1 && lines[0] === '')) {
 		return null;
 	}
-	console.log('pids', pids);
+	console.log('lines', lines);
 	let pid = null;
-	for (const p of pids) {
-		if (!isNaN(Number(p))) {
-			pid = Number(p);
-			// console.log('path', path);
-			if (fs.readlinkSync('/proc/' + pid + '/exe') == '/usr/bin/proxygen') {
-				break;
+	for (const line of lines) {
+		const split = line.split(',');
+		for (const s of split) {
+			if (s.startsWith('pid=')) {
+				let p = s.split('=')[1];
+				if (!isNaN(Number(p))) {
+					pid = Number(p);
+					// console.log('path', path);
+					if (fs.readlinkSync('/proc/' + pid + '/exe') == '/usr/bin/proxygen') {
+						break;
+					}
+				}
 			}
 		}
 	}
+	console.log('pid', pid);
 	return pid;
 }
 
 export function spwan_proxygen(from_port) {
 	console.log('starting spwan');
-	spawn('proxygen', ['--to', '3999', '--from', from_port]).stdout.toString().trim();
+	spawn('proxygen', ['--to', `${proxygen_listening_port}`, '--from', from_port]).stdout.toString().trim();
 	console.log('proxygen spwaned');
 }
 
