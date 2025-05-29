@@ -1,4 +1,5 @@
-// export const URL_USABILITY_TEST = "https://www.oracle.com";
+export const URL_USABILITY_TEST2 = "https://z.cn";
+// export const URL_USABILITY_TEST2 = "http://ip.sb";
 export const URL_USABILITY_TEST = 'https://1.1.1.1';
 export const URL_LATENCY_TEST = 'https://1.1.1.1';
 export const URL_IP_TEST = 'https://one.one.one.one/cdn-cgi/trace';

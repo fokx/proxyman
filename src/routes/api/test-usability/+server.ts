@@ -1,6 +1,13 @@
 import { exec } from 'child_process';
 import { promisify } from 'util';
-import { TestType, URL_IPV4_TEST, URL_IPV6_TEST, URL_LATENCY_TEST, URL_USABILITY_TEST } from '$lib';
+import {
+	TestType,
+	URL_IPV4_TEST,
+	URL_IPV6_TEST,
+	URL_LATENCY_TEST,
+	URL_USABILITY_TEST,
+	URL_USABILITY_TEST2
+} from '$lib';
 import type { RequestHandler } from '@sveltejs/kit';
 import { json } from '@sveltejs/kit';
 import { dbs } from '$lib/server/db';
@@ -88,9 +95,22 @@ export const POST: RequestHandler = async ({ request }) => {
 	}
 
 	if (type !== TestType.IPV6) {
+		// in case CloudFlare's IP cannot be reached, try with another URL
+		let usable = status_code == 200;
+		if (!usable) {
+			command = `curl -sS --connect-timeout 3 -x socks5h://localhost:${socks5_port} -I ${URL_USABILITY_TEST2}`;
+			try {
+				const { stdout } = await execAsync(command);
+				output = stdout;
+				console.log("done cmd", command);
+				usable = true;
+			} catch (error) {
+				usable = false;
+			}
+		}
 		await dbs
 			.update(proxies)
-			.set({ usable: status_code === 200, usable_updated_at: new Date() })
+			.set({ usable: usable, usable_updated_at: new Date() })
 			.where(eq(proxies.local_port, socks5_port));
 	}
 
