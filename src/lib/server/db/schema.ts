@@ -27,7 +27,11 @@ export const proxies = sqliteTable(
 		outgoing_ipv6_location: text(),
 		outgoing_ipv6_country: text(),
 		created_at: integer({ mode: 'timestamp' }),
-		updated_at: integer({ mode: 'timestamp' })
+		updated_at: integer({ mode: 'timestamp' }),
+		server_config: text({mode: 'json'}),
+		client_config: text({mode: 'json'}),
+		cer: text(),
+		key: text(),
 	},
 	(t) => [unique('tool_and_name').on(t.tool, t.name)]
 );

@@ -201,7 +201,12 @@
 				<span>C: {p.outgoing_ipv6_country}</span>
 			{/if}
 		</p>
+
 		<p>
+			<button onclick={() => service_operation("server-stop", get_service_name(p))}>Stop on server</button>
+			<button onclick={() => service_operation("server-restart", get_service_name(p))}>Restart on server</button>
+			<button onclick={() => service_operation("server-enable", get_service_name(p))}>Enable on server</button>
+			<button onclick={() => service_operation("server-disable", get_service_name(p))}>Disable on server</button>
 			<button onclick={() => service_operation("restart", get_service_name(p))}>Restart</button>
 			<button onclick={()=>test_usability(p, TestType.IP)}>Test IP</button>
 			<button onclick={()=>test_usability(p, TestType.USABLITY)}>Test Usability</button>
@@ -214,6 +219,7 @@
 		</p>
 	{/if}
 {/snippet}
+
 <div class="prose-xl lg:prose-2xl max-w-7xl mx-auto button-theme">
 	{#if all_proxies}
 		<div class="bg-gray-100">
