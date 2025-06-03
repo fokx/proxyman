@@ -7,10 +7,10 @@ export const POST: RequestHandler = async ({ request }) => {
 	try {
 		/*
 		visudo, add:
-		username ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart np@*
-		username ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart hyc@*
+		username ALL=(ALL) NOPASSWD: /usr/bin/systemctl * np@*
+		username ALL=(ALL) NOPASSWD: /usr/bin/systemctl * hyc@*
 		username ALL=(ALL) NOPASSWD: /usr/bin/systemctl * tuicc@*
-		username ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart xr@*
+		username ALL=(ALL) NOPASSWD: /usr/bin/systemctl * xr@*
 		 */
 		if (action.startsWith("server-")) {
 			return json({"msg": "server side operations not implemented yet" }, { status: 500 });

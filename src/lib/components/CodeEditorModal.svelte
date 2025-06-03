@@ -217,7 +217,7 @@
           on:click={saveConfig}
           disabled={isSaving}
         >
-          {isSaving ? 'Saving...' : 'Save and Restart (Ctrl+Enter)'}
+          {isSaving ? 'Saving...' : 'Save and Restart'}
         </button>
       </div>
       
